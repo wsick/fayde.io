@@ -22,6 +22,7 @@ var Fayde;
             __extends(FileControl, _super);
             function FileControl() {
                 _super.call(this);
+                this.FilesChanged = new nullstone.Event();
                 this.$element = null;
                 this.$button = null;
                 this.DefaultStyleKey = FileControl;
@@ -53,6 +54,7 @@ var Fayde;
                         _this.OnFilesChanged(this.files);
                     }, false);
                 }
+                el.files = null;
                 el.click();
             };
             FileControl.prototype.OnFilesChanged = function (files) {
@@ -60,8 +62,10 @@ var Fayde;
                 for (var i = 0; i < files.length; i++) {
                     fs.push(files[i]);
                 }
+                var old = this.Files.ToArray();
                 this.Files.Clear();
                 this.Files.AddRange(fs);
+                this.FilesChanged.raise(this, new IO.FilesChangedEventArgs(old, fs));
             };
             FileControl.IsMultipleProperty = DependencyProperty.Register("IsMultiple", function () { return Boolean; }, FileControl, false, function (d, args) { return d.OnIsMultipleChanged(args.OldValue, args.NewValue); });
             FileControl.FilterProperty = DependencyProperty.Register("Filter", function () { return String; }, FileControl, undefined, function (d, args) { return d.OnFilterChanged(args.OldValue, args.NewValue); });
@@ -79,6 +83,28 @@ var Fayde;
             document.body.appendChild(el);
             return el;
         }
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var FilesChangedEventArgs = (function () {
+            function FilesChangedEventArgs(oldFiles, newFiles) {
+                Object.defineProperties(this, {
+                    "OldFiles": {
+                        value: oldFiles,
+                        writable: false
+                    },
+                    "NewFiles": {
+                        value: newFiles,
+                        writable: false
+                    }
+                });
+            }
+            return FilesChangedEventArgs;
+        })();
+        IO.FilesChangedEventArgs = FilesChangedEventArgs;
     })(IO = Fayde.IO || (Fayde.IO = {}));
 })(Fayde || (Fayde = {}));
 

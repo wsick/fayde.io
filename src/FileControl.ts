@@ -11,6 +11,8 @@ module Fayde.IO {
         Filter: string;
         Files: ObservableCollection<File>;
 
+        FilesChanged = new nullstone.Event<FilesChangedEventArgs>();
+
         private $element: HTMLInputElement = null;
         private $button: ButtonBase = null;
 
@@ -49,6 +51,7 @@ module Fayde.IO {
                     _this.OnFilesChanged(this.files);
                 }, false);
             }
+            el.files = null;
             el.click();
         }
 
@@ -57,12 +60,14 @@ module Fayde.IO {
             for (var i = 0; i < files.length; i++) {
                 fs.push(files[i]);
             }
+            var old = this.Files.ToArray();
             this.Files.Clear();
             this.Files.AddRange(fs);
+            this.FilesChanged.raise(this, new FilesChangedEventArgs(old, fs));
         }
     }
     Fayde.Controls.TemplateParts(FileControl,
-        { Name: "BrowseButton", Type: ButtonBase });
+        {Name: "BrowseButton", Type: ButtonBase});
 
     function createFileInput(isMultiple: boolean, filter: string): HTMLInputElement {
         var el = document.createElement('input');

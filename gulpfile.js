@@ -15,8 +15,7 @@ var fs = require('fs'),
                 symdirs: ['dist', 'src', 'themes'],
                 src: [
                     'typings/*.d.ts',
-                    'test/**/*.ts',
-                    '!test/lib/**/*.ts',
+                    'test/!(lib)/*.ts',
                     'dist/' + name + '.d.ts'
                 ].concat(allTypings)
             },
@@ -27,8 +26,7 @@ var fs = require('fs'),
                 symdirs: ['dist', 'src', 'themes'],
                 src: [
                     'typings/*.d.ts',
-                    'testsite/**/*.ts',
-                    '!testsite/lib/**/*.ts',
+                    'testsite/!(lib)/*.ts',
                     'dist/' + name + '.d.ts'
                 ].concat(allTypings)
             }
