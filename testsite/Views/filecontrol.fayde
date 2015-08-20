@@ -7,6 +7,8 @@
         <StackPanel.DataContext>
             <vms:FileControlViewModel />
         </StackPanel.DataContext>
-        <mylib:FileControl FilesChanged="{EventBinding FilesChanged}" />
+        <mylib:FileControl FilesChanged="{EventBinding FilesChanged}" Content="Browse..." />
+        <mylib:FileControl IsMultiple="true" FilesChanged="{EventBinding FilesChanged}" Content="Browse..." />
+        <mylib:FileControl IsMultiple="true" Filter="image/*" FilesChanged="{EventBinding FilesChanged}" Content="Browse..." />
     </StackPanel>
 </Page>

@@ -15,7 +15,7 @@ var Fayde;
 (function (Fayde) {
     var IO;
     (function (IO) {
-        var Control = Fayde.Controls.Control;
+        var ContentControl = Fayde.Controls.ContentControl;
         var ObservableCollection = Fayde.Collections.ObservableCollection;
         var ButtonBase = Fayde.Controls.Primitives.ButtonBase;
         var FileControl = (function (_super) {
@@ -71,7 +71,7 @@ var Fayde;
             FileControl.FilterProperty = DependencyProperty.Register("Filter", function () { return String; }, FileControl, undefined, function (d, args) { return d.OnFilterChanged(args.OldValue, args.NewValue); });
             FileControl.FilesProperty = DependencyProperty.RegisterReadOnly("Files", function () { return ObservableCollection; }, FileControl);
             return FileControl;
-        })(Control);
+        })(ContentControl);
         IO.FileControl = FileControl;
         Fayde.Controls.TemplateParts(FileControl, { Name: "BrowseButton", Type: ButtonBase });
         function createFileInput(isMultiple, filter) {

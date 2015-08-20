@@ -1,9 +1,9 @@
 module Fayde.IO {
-    import Control = Fayde.Controls.Control;
+    import ContentControl = Fayde.Controls.ContentControl;
     import ObservableCollection = Fayde.Collections.ObservableCollection;
     import ButtonBase = Fayde.Controls.Primitives.ButtonBase;
 
-    export class FileControl extends Control {
+    export class FileControl extends ContentControl {
         static IsMultipleProperty = DependencyProperty.Register("IsMultiple", () => Boolean, FileControl, false, (d: FileControl, args) => d.OnIsMultipleChanged(args.OldValue, args.NewValue));
         static FilterProperty = DependencyProperty.Register("Filter", () => String, FileControl, undefined, (d: FileControl, args) => d.OnFilterChanged(args.OldValue, args.NewValue));
         static FilesProperty = DependencyProperty.RegisterReadOnly("Files", () => ObservableCollection, FileControl);

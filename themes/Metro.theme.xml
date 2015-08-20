@@ -8,7 +8,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="controls:FileControl">
-                    <Button x:Name="BrowseButton" Content="Browse..." />
+                    <Button x:Name="BrowseButton" Content="{TemplateBinding Content}" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
