@@ -1,0 +1,15 @@
+{
+  "libs": {
+    "fayde.io": {
+      "exports": "Fayde.IO",
+      "base": "lib/fayde.io"
+    }
+  },
+  "themes": {
+    "fayde.io": {}
+  },
+  "debug": {
+    "warnMissingThemes": false,
+    "warnBrokenPath": false
+  }
+}

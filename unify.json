@@ -1,0 +1,31 @@
+{
+  "name": "fayde.io",
+  "client": {
+    "tests": [
+      {
+        "file": "test/fayde.json",
+        "lib": "test/lib",
+        "exclude": [
+          "qunit"
+        ]
+      },
+      {
+        "file": "testsite/fayde.json",
+        "lib": "testsite/lib",
+        "exclude": [
+          "qunit"
+        ]
+      }
+    ]
+  },
+  "type": "lib",
+  "dist": "dist/fayde.io",
+  "library": {
+    "type": "export",
+    "exports": "Fayde.IO"
+  },
+  "themes": {},
+  "typings": [
+    "dist/fayde.io.d.ts"
+  ]
+}
