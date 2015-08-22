@@ -107,5 +107,104 @@ var Fayde;
         IO.FilesChangedEventArgs = FilesChangedEventArgs;
     })(IO = Fayde.IO || (Fayde.IO = {}));
 })(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var FailedEventArgs = (function () {
+            function FailedEventArgs(error) {
+                Object.defineProperties(this, {
+                    "Error": {
+                        value: error,
+                        writable: false
+                    }
+                });
+            }
+            return FailedEventArgs;
+        })();
+        IO.FailedEventArgs = FailedEventArgs;
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var ProgressedEventArgs = (function () {
+            function ProgressedEventArgs(loaded, total) {
+                Object.defineProperties(this, {
+                    "Loaded": {
+                        value: loaded,
+                        writable: false
+                    },
+                    "Total": {
+                        value: total,
+                        writable: false
+                    }
+                });
+            }
+            return ProgressedEventArgs;
+        })();
+        IO.ProgressedEventArgs = ProgressedEventArgs;
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        (function (UploadReporting) {
+            UploadReporting[UploadReporting["Complete"] = 1] = "Complete";
+            UploadReporting[UploadReporting["Progress"] = 2] = "Progress";
+            UploadReporting[UploadReporting["Failed"] = 4] = "Failed";
+            UploadReporting[UploadReporting["Cancelled"] = 8] = "Cancelled";
+        })(IO.UploadReporting || (IO.UploadReporting = {}));
+        var UploadReporting = IO.UploadReporting;
+        var Uploader = (function () {
+            function Uploader() {
+                var _this = this;
+                this.Progressed = new nullstone.Event();
+                this.Completed = new nullstone.Event();
+                this.Failed = new nullstone.Event();
+                this.Cancelled = new nullstone.Event();
+                this.$active = null;
+                this._OnUploadComplete = function (ev) {
+                    _this.Completed.raise(_this, {});
+                };
+                this._OnUploadProgress = function (ev) {
+                    _this.Progressed.raise(_this, new IO.ProgressedEventArgs(ev.loaded, ev.total));
+                };
+                this._OnUploadErrored = function (ev) {
+                    _this.Failed.raise(_this, new IO.FailedEventArgs(ev));
+                };
+                this._OnUploadAborted = function (ev) {
+                    _this.Cancelled.raise(_this, {});
+                };
+            }
+            Object.defineProperty(Uploader.prototype, "Reporting", {
+                get: function () {
+                    return UploadReporting.Complete | UploadReporting.Progress | UploadReporting.Failed | UploadReporting.Cancelled;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Uploader.prototype.Upload = function (url, data, filename, filetype) {
+                if (this.$active)
+                    throw new Error("Uploader can only upload once.");
+                var xhr = this.$active = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("X-File-Name", filename);
+                xhr.setRequestHeader("X-File-Type", filetype);
+                if (xhr.upload) {
+                    xhr.upload.addEventListener("load", this._OnUploadComplete, false);
+                    xhr.upload.addEventListener("progress", this._OnUploadProgress, false);
+                    xhr.upload.addEventListener("error", this._OnUploadErrored, false);
+                    xhr.upload.addEventListener("abort", this._OnUploadAborted, false);
+                }
+                xhr.send(data);
+            };
+            return Uploader;
+        })();
+        IO.Uploader = Uploader;
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
 
 //# sourceMappingURL=fayde.io.js.map

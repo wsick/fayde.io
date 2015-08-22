@@ -12,7 +12,7 @@ module Fayde.IO {
         Completed: nullstone.Event<any>;
         Failed: nullstone.Event<FailedEventArgs>;
         Cancelled: nullstone.Event<any>;
-        Upload();
+        Upload(url: string, data: any, filename: string, filetype: string);
     }
 
     export class Uploader implements IUploader {
@@ -31,10 +31,9 @@ module Fayde.IO {
             if (this.$active)
                 throw new Error("Uploader can only upload once.");
             var xhr = this.$active = new XMLHttpRequest();
-            xhr.setRequestHeader("Content-Type", "multipart/form-data");
+            xhr.open("POST", url, true);
             xhr.setRequestHeader("X-File-Name", filename);
             xhr.setRequestHeader("X-File-Type", filetype);
-            xhr.open("POST", url, true);
 
             if (xhr.upload) {
                 xhr.upload.addEventListener("load", this._OnUploadComplete, false);
@@ -42,6 +41,8 @@ module Fayde.IO {
                 xhr.upload.addEventListener("error", this._OnUploadErrored, false);
                 xhr.upload.addEventListener("abort", this._OnUploadAborted, false);
             }
+
+            xhr.send(data);
         }
 
         private _OnUploadComplete = (ev: Event) => {
