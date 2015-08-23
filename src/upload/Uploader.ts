@@ -14,6 +14,10 @@ module Fayde.IO {
         Cancelled: nullstone.Event<any>;
         Upload(url: string, data: any, filename: string, filetype: string);
     }
+    export var IUploader_ = new nullstone.Interface<IUploader>("IUploader");
+    IUploader_.is = function (o: any): boolean {
+        return o && typeof o.Upload === "function";
+    };
 
     export class Uploader implements IUploader {
         get Reporting(): UploadReporting {

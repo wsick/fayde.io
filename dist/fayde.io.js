@@ -89,68 +89,6 @@ var Fayde;
 (function (Fayde) {
     var IO;
     (function (IO) {
-        var FilesChangedEventArgs = (function () {
-            function FilesChangedEventArgs(oldFiles, newFiles) {
-                Object.defineProperties(this, {
-                    "OldFiles": {
-                        value: oldFiles,
-                        writable: false
-                    },
-                    "NewFiles": {
-                        value: newFiles,
-                        writable: false
-                    }
-                });
-            }
-            return FilesChangedEventArgs;
-        })();
-        IO.FilesChangedEventArgs = FilesChangedEventArgs;
-    })(IO = Fayde.IO || (Fayde.IO = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var IO;
-    (function (IO) {
-        var FailedEventArgs = (function () {
-            function FailedEventArgs(error) {
-                Object.defineProperties(this, {
-                    "Error": {
-                        value: error,
-                        writable: false
-                    }
-                });
-            }
-            return FailedEventArgs;
-        })();
-        IO.FailedEventArgs = FailedEventArgs;
-    })(IO = Fayde.IO || (Fayde.IO = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var IO;
-    (function (IO) {
-        var ProgressedEventArgs = (function () {
-            function ProgressedEventArgs(loaded, total) {
-                Object.defineProperties(this, {
-                    "Loaded": {
-                        value: loaded,
-                        writable: false
-                    },
-                    "Total": {
-                        value: total,
-                        writable: false
-                    }
-                });
-            }
-            return ProgressedEventArgs;
-        })();
-        IO.ProgressedEventArgs = ProgressedEventArgs;
-    })(IO = Fayde.IO || (Fayde.IO = {}));
-})(Fayde || (Fayde = {}));
-var Fayde;
-(function (Fayde) {
-    var IO;
-    (function (IO) {
         (function (UploadReporting) {
             UploadReporting[UploadReporting["Complete"] = 1] = "Complete";
             UploadReporting[UploadReporting["Progress"] = 2] = "Progress";
@@ -158,6 +96,10 @@ var Fayde;
             UploadReporting[UploadReporting["Cancelled"] = 8] = "Cancelled";
         })(IO.UploadReporting || (IO.UploadReporting = {}));
         var UploadReporting = IO.UploadReporting;
+        IO.IUploader_ = new nullstone.Interface("IUploader");
+        IO.IUploader_.is = function (o) {
+            return o && typeof o.Upload === "function";
+        };
         var Uploader = (function () {
             function Uploader() {
                 var _this = this;
@@ -206,6 +148,241 @@ var Fayde;
             return Uploader;
         })();
         IO.Uploader = Uploader;
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+/// <reference path="upload/Uploader" />
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var Control = Fayde.Controls.Control;
+        var ItemsControl = Fayde.Controls.ItemsControl;
+        var ObservableCollection = Fayde.Collections.ObservableCollection;
+        var ButtonBase = Fayde.Controls.Primitives.ButtonBase;
+        var FileUploadControl = (function (_super) {
+            __extends(FileUploadControl, _super);
+            function FileUploadControl() {
+                _super.call(this);
+                this.$control = null;
+                this.$upload = null;
+                this.DefaultStyleKey = FileUploadControl;
+                this.SetCurrentValue(FileUploadControl.ItemsProperty, new ObservableCollection());
+            }
+            FileUploadControl.prototype.OnUploaderTypeChanged = function (oldType, newType) {
+                var hasProgress = true;
+                if (!newType || typeof newType !== "function") {
+                    hasProgress = false;
+                }
+                else {
+                    var test = IO.IUploader_.as(new newType());
+                    hasProgress = !!test && (test.Reporting & IO.UploadReporting.Progress) === 0;
+                }
+                this.SetCurrentValue(FileUploadControl.HasNoProgressProperty, !hasProgress);
+            };
+            FileUploadControl.prototype.CreateUploader = function () {
+                return new this.UploaderType();
+            };
+            FileUploadControl.prototype.OnApplyTemplate = function () {
+                _super.prototype.OnApplyTemplate.call(this);
+                if (this.$control)
+                    this.$control.FilesChanged.off(this._OnFilesChanged, this);
+                this.$control = this.GetTemplateChild("FileControl", IO.FileControl);
+                if (this.$control)
+                    this.$control.FilesChanged.on(this._OnFilesChanged, this);
+                if (this.$upload)
+                    this.$upload.Click.off(this._OnStart, this);
+                this.$upload = this.GetTemplateChild("UploadButton", ButtonBase);
+                if (this.$upload)
+                    this.$upload.Click.on(this._OnStart, this);
+            };
+            FileUploadControl.prototype._OnFilesChanged = function (sender, args) {
+                this.Items.Clear();
+                this.Items.AddRange(args.NewFiles.map(function (file) { return new IO.FileUploadItem(file); }));
+            };
+            FileUploadControl.prototype._OnStart = function (sender, args) {
+                var url;
+                if (!this.UploadUri || !(url = this.UploadUri.toString())) {
+                    console.warn("Cannot upload with UploadUri set.");
+                    return;
+                }
+                for (var en = this.Items.getEnumerator(); en.moveNext();) {
+                    en.current.Upload(url, this.CreateUploader());
+                }
+            };
+            FileUploadControl.ItemsProperty = DependencyProperty.RegisterReadOnly("Items", function () { return ObservableCollection; }, FileUploadControl);
+            FileUploadControl.UploaderTypeProperty = DependencyProperty.Register("UploaderType", function () { return Function; }, FileUploadControl, IO.Uploader, function (d, args) { return d.OnUploaderTypeChanged(args.OldValue, args.NewValue); });
+            FileUploadControl.HasNoProgressProperty = DependencyProperty.RegisterReadOnly("HasNoProgress", function () { return Boolean; }, FileUploadControl, false);
+            FileUploadControl.UploadUriProperty = DependencyProperty.Register("UploadUri", function () { return Fayde.Uri; }, FileUploadControl);
+            return FileUploadControl;
+        })(Control);
+        IO.FileUploadControl = FileUploadControl;
+        Fayde.Controls.TemplateParts(FileUploadControl, { Name: "FileControl", Type: IO.FileControl }, { Name: "UploadButton", Type: ButtonBase }, { Name: "ItemsProgress", Type: ItemsControl });
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var ObservableObject = Fayde.MVVM.ObservableObject;
+        var FileUploadItem = (function (_super) {
+            __extends(FileUploadItem, _super);
+            function FileUploadItem(file) {
+                _super.call(this);
+                this.UploadProgress = 0;
+                this.IsUploading = false;
+                this.UploadStatus = "";
+                this.UploadError = null;
+                this.$file = file;
+            }
+            Object.defineProperty(FileUploadItem.prototype, "Size", {
+                get: function () {
+                    return this.$file ? this.$file.size : 0;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FileUploadItem.prototype, "Name", {
+                get: function () {
+                    return this.$file ? this.$file.name : "";
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FileUploadItem.prototype, "Type", {
+                get: function () {
+                    return this.$file ? this.$file.type : "";
+                },
+                enumerable: true,
+                configurable: true
+            });
+            FileUploadItem.prototype.Upload = function (url, uploader) {
+                this.IsUploading = true;
+                uploader.Cancelled.on(this._OnCancelled, this);
+                uploader.Completed.on(this._OnCompleted, this);
+                uploader.Progressed.on(this._OnProgressed, this);
+                uploader.Failed.on(this._OnFailed, this);
+                uploader.Upload(url, this.$file, this.Name, this.Type);
+            };
+            FileUploadItem.prototype._OnCancelled = function () {
+                this.UploadStatus = "Cancelled";
+                this.IsUploading = false;
+            };
+            FileUploadItem.prototype._OnCompleted = function () {
+                this.UploadStatus = "Completed";
+                this.IsUploading = false;
+            };
+            FileUploadItem.prototype._OnProgressed = function (sender, args) {
+                this.UploadStatus = "";
+                this.UploadProgress = args.Loaded / args.Total;
+            };
+            FileUploadItem.prototype._OnFailed = function (sender, args) {
+                this.UploadStatus = "Failed";
+                this.UploadError = args.Error;
+                this.IsUploading = false;
+            };
+            return FileUploadItem;
+        })(ObservableObject);
+        IO.FileUploadItem = FileUploadItem;
+        Fayde.MVVM.NotifyProperties(FileUploadItem, ["UploadProgress", "IsUploading", "UploadStatus", "UploadError"]);
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var FilesChangedEventArgs = (function () {
+            function FilesChangedEventArgs(oldFiles, newFiles) {
+                Object.defineProperties(this, {
+                    "OldFiles": {
+                        value: oldFiles,
+                        writable: false
+                    },
+                    "NewFiles": {
+                        value: newFiles,
+                        writable: false
+                    }
+                });
+            }
+            return FilesChangedEventArgs;
+        })();
+        IO.FilesChangedEventArgs = FilesChangedEventArgs;
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var TB = Math.pow(2, 40);
+        var GB = Math.pow(2, 30);
+        var MB = Math.pow(2, 20);
+        var KB = Math.pow(2, 10);
+        var threshold = 0.9;
+        function round(val, digits) {
+            var factor = Math.pow(10, digits);
+            return Math.round(val * factor) / factor;
+        }
+        var SizeConverter = (function () {
+            function SizeConverter() {
+            }
+            SizeConverter.prototype.Convert = function (value, targetType, parameter, culture) {
+                var short;
+                if ((short = value / TB) > threshold)
+                    return round(short, 2).toString() + "TB";
+                if ((short = value / GB) > threshold)
+                    return round(short, 2).toString() + "GB";
+                if ((short = value / MB) > threshold)
+                    return round(short, 2).toString() + "MB";
+                if ((short = value / KB) > threshold)
+                    return round(short, 2).toString() + "KB";
+                return value;
+            };
+            SizeConverter.prototype.ConvertBack = function (value, targetType, parameter, culture) {
+                return value;
+            };
+            return SizeConverter;
+        })();
+        IO.SizeConverter = SizeConverter;
+        Fayde.Data.IValueConverter_.mark(SizeConverter);
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var FailedEventArgs = (function () {
+            function FailedEventArgs(error) {
+                Object.defineProperties(this, {
+                    "Error": {
+                        value: error,
+                        writable: false
+                    }
+                });
+            }
+            return FailedEventArgs;
+        })();
+        IO.FailedEventArgs = FailedEventArgs;
+    })(IO = Fayde.IO || (Fayde.IO = {}));
+})(Fayde || (Fayde = {}));
+var Fayde;
+(function (Fayde) {
+    var IO;
+    (function (IO) {
+        var ProgressedEventArgs = (function () {
+            function ProgressedEventArgs(loaded, total) {
+                Object.defineProperties(this, {
+                    "Loaded": {
+                        value: loaded,
+                        writable: false
+                    },
+                    "Total": {
+                        value: total,
+                        writable: false
+                    }
+                });
+            }
+            return ProgressedEventArgs;
+        })();
+        IO.ProgressedEventArgs = ProgressedEventArgs;
     })(IO = Fayde.IO || (Fayde.IO = {}));
 })(Fayde || (Fayde = {}));
 

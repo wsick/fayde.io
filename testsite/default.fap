@@ -12,6 +12,7 @@
         </Grid.ColumnDefinitions>
         <StackPanel>
             <HyperlinkButton TargetName="ContentFrame" NavigateUri="/filecontrol" Content="File Control" />
+            <HyperlinkButton TargetName="ContentFrame" NavigateUri="/fileuploadcontrol" Content="File Upload Control" />
             <mylib:FileControl Visibility="Collapsed" />
         </StackPanel>
         <Frame x:Name="ContentFrame" Grid.Column="1">
