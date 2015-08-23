@@ -42,7 +42,9 @@ module Fayde.IO {
                 xhr.upload.addEventListener("abort", this._OnUploadAborted, false);
             }
 
-            xhr.send(data);
+            var fdata = new FormData();
+            fdata.append('image', data);
+            xhr.send(fdata);
         }
 
         private _OnUploadComplete = (ev: Event) => {

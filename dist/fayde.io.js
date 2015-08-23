@@ -199,7 +199,9 @@ var Fayde;
                     xhr.upload.addEventListener("error", this._OnUploadErrored, false);
                     xhr.upload.addEventListener("abort", this._OnUploadAborted, false);
                 }
-                xhr.send(data);
+                var fdata = new FormData();
+                fdata.append('image', data);
+                xhr.send(fdata);
             };
             return Uploader;
         })();
