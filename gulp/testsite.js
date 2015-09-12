@@ -25,7 +25,7 @@ module.exports = function (meta) {
             .pipe(connect.reload());
     });
 
-    gulp.task('testsite', ['default', 'testsite-build'], function () {
+    gulp.task('testsite', ['watch', 'testsite-build'], function () {
         var options = {
             url: 'http://localhost:' + scaffold.port.toString()
         };
@@ -38,7 +38,9 @@ module.exports = function (meta) {
             port: scaffold.port
         });
 
-        gulp.watch('testsite/**/*.ts', ['testsite-build']);
-        gulp.watch('testsite/.build/**/*', connect.reload);
+        gulp.watch('./testsite/**/*.ts', ['testsite-build']);
+        gulp.watch('./testsite/.build/**/*', connect.reload);
+        gulp.watch('./dist/**', connect.reload);
+        gulp.watch('./themes/**', connect.reload);
     });
 };

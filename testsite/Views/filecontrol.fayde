@@ -10,5 +10,6 @@
         <mylib:FileControl FilesChanged="{EventBinding FilesChanged}" Content="Browse..." />
         <mylib:FileControl IsMultiple="true" FilesChanged="{EventBinding FilesChanged}" Content="Browse..." />
         <mylib:FileControl IsMultiple="true" Filter="image/*" FilesChanged="{EventBinding FilesChanged}" Content="Browse..." />
+        <Button Content="Upload!" Click="{EventBinding Upload}" />
     </StackPanel>
 </Page>
